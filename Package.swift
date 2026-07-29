@@ -13,7 +13,11 @@ let package = Package(
         .library(name: "Runestone", targets: ["Runestone"])
     ],
     dependencies: [
-        .package(url: "https://github.com/tree-sitter/tree-sitter", .upToNextMinor(from: "0.20.9"))
+        // Forked to bradenacurtis801/tree-sitter at v0.20.10: fixes an Xcode 26 /
+        // Swift 6.3 C++ interop compile error in api.h/parser.h (std headers
+        // #include'd inside an extern "C" block). Same code otherwise.
+        // See https://github.com/tree-sitter/tree-sitter/issues/5523
+        .package(url: "https://github.com/bradenacurtis801/tree-sitter", .upToNextMinor(from: "0.20.9"))
     ],
     targets: [
         .target(name: "Runestone", dependencies: [
