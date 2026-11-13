@@ -525,6 +525,32 @@ open class TextView: UIScrollView {
             }
         }
     }
+    /// How lines of each decoration kind are drawn: a color behind the whole row of text and one in the gutter. Kind 0 is no decoration.
+    public var lineDecorationStyles: [Int: LineDecorationStyle] {
+        get {
+            textInputView.lineDecorationStyles
+        }
+        set {
+            textInputView.lineDecorationStyles = newValue
+        }
+    }
+    /// The decoration kind of a line made by pressing Return in another, given the kind of the line that was split. Defaults to the same kind.
+    public var lineDecorationForNewLine: (Int) -> Int {
+        get {
+            textInputView.lineDecorationForNewLine
+        }
+        set {
+            textInputView.lineDecorationForNewLine = newValue
+        }
+    }
+    /// Gives lines their decoration kind by 0-based row, every line not in `runs` getting none. A decoration stays with its line as the text around it is edited.
+    public func setLineDecorations(_ runs: [LineDecorationRun]) {
+        textInputView.setLineDecorations(runs)
+    }
+    /// The decoration kind of the line at the 0-based row (0 for none or a row past the end).
+    public func lineDecoration(atRow row: Int) -> Int {
+        textInputView.lineManager.decoration(atRow: row)
+    }
     /// Ranges in the text to be highlighted. The color defined by the background will be drawen behind the text.
     public var highlightedRanges: [HighlightedRange] {
         get {

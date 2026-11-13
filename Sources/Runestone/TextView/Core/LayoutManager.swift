@@ -22,6 +22,13 @@ final class LayoutManager {
         }
     }
     var lineManager: LineManager
+    var lineDecorationStyles: [Int: LineDecorationStyle] = [:] {
+        didSet {
+            if lineDecorationStyles != oldValue {
+                setNeedsLayout()
+            }
+        }
+    }
     var stringView: StringView
     var scrollViewWidth: CGFloat = 0
     var viewport: CGRect = .zero
@@ -415,6 +422,7 @@ extension LayoutManager {
                 appearedLineFragmentIDs.insert(lineFragment.id)
                 lineFragmentController.highlightedRangeFragments = highlightService.highlightedRangeFragments(for: lineFragment,
                                                                                                               inLineWithID: line.id)
+                lineFragmentController.backgroundColor = lineDecorationStyles[line.data.decoration]?.background
                 layoutLineFragmentView(for: lineFragmentController, lineYPosition: lineYPosition, lineFragmentFrame: &lineFragmentFrame)
                 maxY = lineFragmentFrame.maxY
             }
@@ -478,6 +486,9 @@ extension LayoutManager {
         lineNumberView.font = theme.lineNumberFont
         lineNumberView.textColor = theme.lineNumberColor
         lineNumberView.frame = CGRect(x: xPosition, y: yPosition, width: gutterWidthService.lineNumberWidth, height: fontLineHeight)
+        let rowTop = textContainerInset.top + line.yPosition
+        let rowFrame = CGRect(x: -xPosition, y: rowTop - yPosition, width: gutterWidthService.gutterWidth, height: lineController.lineHeight)
+        lineNumberView.setGutterTint(lineDecorationStyles[line.data.decoration]?.gutterBackground, rowFrame: rowFrame)
     }
 
     private func layoutLineFragmentView(for lineFragmentController: LineFragmentController, lineYPosition: CGFloat, lineFragmentFrame: inout CGRect) {

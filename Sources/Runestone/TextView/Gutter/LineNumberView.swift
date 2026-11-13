@@ -26,6 +26,22 @@ final class LineNumberView: UIView, ReusableView {
         }
     }
 
+    private let tintView = UIView()
+
+    /// Tints the line's whole row of the gutter, `rowFrame` being that row in this view's own coordinates (it reaches outside the number); `nil` takes it away.
+    func setGutterTint(_ color: UIColor?, rowFrame: CGRect) {
+        guard let color else {
+            tintView.isHidden = true
+            return
+        }
+        if tintView.superview == nil {
+            insertSubview(tintView, at: 0)
+        }
+        tintView.isHidden = false
+        tintView.backgroundColor = color
+        tintView.frame = rowFrame
+    }
+
     private let titleLabel: UILabel = {
         let this = UILabel()
         this.textAlignment = .right

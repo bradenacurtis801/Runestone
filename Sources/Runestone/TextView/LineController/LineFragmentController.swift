@@ -66,6 +66,19 @@ final class LineFragmentController {
         }
     }
 
+    /// Drawn behind the whole row of the line fragment (a line decoration).
+    var backgroundColor: UIColor? {
+        get {
+            renderer.lineBackgroundColor
+        }
+        set {
+            if newValue != renderer.lineBackgroundColor {
+                renderer.lineBackgroundColor = newValue
+                lineFragmentView?.setNeedsDisplay()
+            }
+        }
+    }
+
     private let renderer: LineFragmentRenderer
 
     init(lineFragment: LineFragment, invisibleCharacterConfiguration: InvisibleCharacterConfiguration) {

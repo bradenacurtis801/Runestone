@@ -18,6 +18,7 @@ final class LineFragmentRenderer {
     var markedTextBackgroundColor: UIColor = .systemFill
     var markedTextBackgroundCornerRadius: CGFloat = 0
     var highlightedRangeFragments: [HighlightedRangeFragment] = []
+    var lineBackgroundColor: UIColor?
 
     private var showInvisibleCharacters: Bool {
         invisibleCharacterConfiguration.showTabs
@@ -32,6 +33,10 @@ final class LineFragmentRenderer {
     }
 
     func draw(to context: CGContext, inCanvasOfSize canvasSize: CGSize) {
+        if let lineBackgroundColor {
+            context.setFillColor(lineBackgroundColor.cgColor)
+            context.fill(CGRect(origin: .zero, size: canvasSize))
+        }
         drawHighlightedRanges(to: context, inCanvasOfSize: canvasSize)
         drawMarkedRange(to: context)
         drawInvisibleCharacters()

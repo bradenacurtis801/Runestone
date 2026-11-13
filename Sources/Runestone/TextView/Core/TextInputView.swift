@@ -416,6 +416,25 @@ final class TextInputView: UIView, UITextInput {
     private var estimatedLineHeight: CGFloat {
         theme.font.totalLineHeight * lineHeightMultiplier
     }
+    var lineDecorationStyles: [Int: LineDecorationStyle] {
+        get {
+            layoutManager.lineDecorationStyles
+        }
+        set {
+            layoutManager.lineDecorationStyles = newValue
+            layoutManager.layoutIfNeeded()
+        }
+    }
+    var lineDecorationForNewLine: (Int) -> Int = { $0 } {
+        didSet {
+            lineManager.decorationForNewLine = lineDecorationForNewLine
+        }
+    }
+    func setLineDecorations(_ runs: [LineDecorationRun]) {
+        lineManager.setDecorations(runs)
+        layoutManager.setNeedsLayout()
+        layoutManager.layoutIfNeeded()
+    }
     var highlightedRanges: [HighlightedRange] {
         get {
             highlightService.highlightedRanges
@@ -548,6 +567,7 @@ final class TextInputView: UIView, UITextInput {
                 selectionRectService.lineManager = lineManager
                 highlightService.lineManager = lineManager
                 customTokenizer.lineManager = lineManager
+                lineManager.decorationForNewLine = lineDecorationForNewLine
             }
         }
     }

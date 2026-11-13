@@ -27,6 +27,8 @@ final class LineManager {
         return rightMost.yPosition + rightMost.data.lineHeight
     }
     var estimatedLineHeight: CGFloat = 12
+    /// The decoration kind of a line made by splitting another line, given the kind of the line it came from.
+    var decorationForNewLine: (Int) -> Int = { $0 }
     var firstLine: DocumentLineNode {
         documentLineTree.root.leftMost
     }
@@ -200,6 +202,30 @@ final class LineManager {
         return changeSet
     }
 
+    func decoration(atRow row: Int) -> Int {
+        guard row >= 0 && row < lineCount else {
+            return 0
+        }
+        return line(atRow: row).data.decoration
+    }
+
+    /// Makes the lines in `runs` of their kind and every other line of none.
+    func setDecorations(_ runs: [LineDecorationRun]) {
+        for row in 0 ..< lineCount {
+            line(atRow: row).data.decoration = 0
+        }
+        for run in runs where run.kind != 0 {
+            let first = max(run.firstRow, 0)
+            let end = min(run.firstRow + run.count, lineCount)
+            guard first < end else {
+                continue
+            }
+            for row in first ..< end {
+                line(atRow: row).data.decoration = run.kind
+            }
+        }
+    }
+
     func linePosition(at location: Int) -> LinePosition? {
         if let line = line(containingCharacterAt: location) {
             let column = location - line.location
@@ -330,6 +356,7 @@ private extension LineManager {
     @discardableResult
     private func insertLine(ofLength length: Int, after otherLine: DocumentLineNode) -> DocumentLineNode {
         let data = DocumentLineNodeData(lineHeight: estimatedLineHeight)
+        data.decoration = decorationForNewLine(otherLine.data.decoration)
         let insertedLine = documentLineTree.insertNode(value: length, data: data, after: otherLine)
         let range = NSRange(location: insertedLine.location, length: length)
         let substring = stringView.substring(in: range)
