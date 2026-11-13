@@ -547,6 +547,30 @@ open class TextView: UIScrollView {
     public func setLineDecorations(_ runs: [LineDecorationRun]) {
         textInputView.setLineDecorations(runs)
     }
+    /// The number of lines.
+    public var lineCount: Int {
+        textInputView.lineManager.lineCount
+    }
+    /// The height of all the lines together, as far as it is known: a line not laid out yet counts as its estimate.
+    public var linesHeight: CGFloat {
+        textInputView.lineManager.contentHeight
+    }
+    /// The 0-based line at `y` in the scrolling content (the first above the text, the last below it). Found from the lines' heights, so
+    /// it works for lines that are not laid out, unlike `closestPosition(to:)` — but a line not laid out counts as its estimated height.
+    public func lineNumber(atContentOffsetY y: CGFloat) -> Int {
+        let lineManager = textInputView.lineManager
+        let adjusted = y - textContainerInset.top
+        guard adjusted > 0 else {
+            return 0
+        }
+        return lineManager.line(containingYOffset: adjusted)?.index ?? (lineManager.lineCount - 1)
+    }
+    /// Where the 0-based line starts in the scrolling content, as far as the heights are known.
+    public func contentOffsetY(ofLine row: Int) -> CGFloat {
+        let lineManager = textInputView.lineManager
+        let row = min(max(row, 0), lineManager.lineCount - 1)
+        return textContainerInset.top + lineManager.line(atRow: row).yPosition
+    }
     /// The decoration kind of the line at the 0-based row (0 for none or a row past the end).
     public func lineDecoration(atRow row: Int) -> Int {
         textInputView.lineManager.decoration(atRow: row)
