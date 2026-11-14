@@ -71,7 +71,10 @@ final class TreeSitterInternalLanguageMode: InternalLanguageMode {
             startPoint: TreeSitterTextPoint(change.startLinePosition),
             oldEndPoint: TreeSitterTextPoint(change.oldEndLinePosition),
             newEndPoint: TreeSitterTextPoint(change.newEndLinePosition))
-        return rootLanguageLayer.apply(edit)
+        // A parse in the background (`parse(_:completion:)`) works with the same parser: wait for it rather than reset the parser under it.
+        return parseLock.withLock {
+            rootLanguageLayer.apply(edit)
+        }
     }
 
     func captures(in range: ByteRange) -> [TreeSitterCapture] {
