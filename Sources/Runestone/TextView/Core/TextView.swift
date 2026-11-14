@@ -547,6 +547,15 @@ open class TextView: UIScrollView {
     public func setLineDecorations(_ runs: [LineDecorationRun]) {
         textInputView.setLineDecorations(runs)
     }
+    /// Sets the decoration kind of the lines in the 0-based `rows` from `runs` (whose rows are absolute), leaving every other line as it is.
+    public func setLineDecorations(_ runs: [LineDecorationRun], inRows rows: Range<Int>) {
+        textInputView.setLineDecorations(runs, inRows: rows)
+    }
+    /// Shows `labels` in the gutter in place of line numbers, the first on the 0-based `row` (a line with none shows blank; a line made by
+    /// splitting another too); `nil` brings the numbers back. A label stays with its line as the text around it is edited.
+    public func setGutterLabels(_ labels: [String]?, startingAt row: Int = 0) {
+        textInputView.setGutterLabels(labels, startingAt: row)
+    }
     /// The number of lines.
     public var lineCount: Int {
         textInputView.lineManager.lineCount

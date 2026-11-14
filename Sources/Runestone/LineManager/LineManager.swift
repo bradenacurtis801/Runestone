@@ -29,6 +29,8 @@ final class LineManager {
     var estimatedLineHeight: CGFloat = 12
     /// The decoration kind of a line made by splitting another line, given the kind of the line it came from.
     var decorationForNewLine: (Int) -> Int = { $0 }
+    /// The gutter shows each line's `gutterLabel` — blank for a line made by splitting another — in place of its number.
+    private(set) var usesGutterLabels = false
     var firstLine: DocumentLineNode {
         documentLineTree.root.leftMost
     }
@@ -200,6 +202,52 @@ final class LineManager {
             changeSet.union(with: otherChangeSet)
         }
         return changeSet
+    }
+
+    /// Sets the decoration of the lines in `rows` from `runs` (absolute rows), leaving every other line alone.
+    func setDecorations(_ runs: [LineDecorationRun], inRows rows: Range<Int>) {
+        let first = max(rows.lowerBound, 0)
+        let end = min(rows.upperBound, lineCount)
+        guard first < end else {
+            return
+        }
+        for row in first ..< end {
+            line(atRow: row).data.decoration = 0
+        }
+        for run in runs where run.kind != 0 {
+            let from = max(run.firstRow, first)
+            let to = min(run.firstRow + run.count, end)
+            guard from < to else {
+                continue
+            }
+            for row in from ..< to {
+                line(atRow: row).data.decoration = run.kind
+            }
+        }
+    }
+
+    /// Shows `labels` in the gutter from `row` on instead of line numbers (a line with none shows blank), or the numbers again for `nil`.
+    func setGutterLabels(_ labels: [String]?, startingAt row: Int) {
+        guard let labels else {
+            usesGutterLabels = false
+            for row in 0 ..< lineCount {
+                line(atRow: row).data.gutterLabel = ""
+            }
+            return
+        }
+        if !usesGutterLabels {
+            usesGutterLabels = true
+            for row in 0 ..< lineCount {
+                line(atRow: row).data.gutterLabel = ""
+            }
+        }
+        for (offset, label) in labels.enumerated() {
+            let target = row + offset
+            guard target >= 0 && target < lineCount else {
+                continue
+            }
+            line(atRow: target).data.gutterLabel = label
+        }
     }
 
     func decoration(atRow row: Int) -> Int {

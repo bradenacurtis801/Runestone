@@ -435,6 +435,16 @@ final class TextInputView: UIView, UITextInput {
         layoutManager.setNeedsLayout()
         layoutManager.layoutIfNeeded()
     }
+    func setLineDecorations(_ runs: [LineDecorationRun], inRows rows: Range<Int>) {
+        lineManager.setDecorations(runs, inRows: rows)
+        layoutManager.setNeedsLayout()
+        layoutManager.layoutIfNeeded()
+    }
+    func setGutterLabels(_ labels: [String]?, startingAt row: Int) {
+        lineManager.setGutterLabels(labels, startingAt: row)
+        layoutManager.setNeedsLayout()
+        layoutManager.layoutIfNeeded()
+    }
     var highlightedRanges: [HighlightedRange] {
         get {
             highlightService.highlightedRanges

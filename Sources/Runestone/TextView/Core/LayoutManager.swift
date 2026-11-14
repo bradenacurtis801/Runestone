@@ -482,7 +482,7 @@ extension LayoutManager {
             // There's a single line fragment, so we center the line number in the height of the line.
             yPosition += (lineController.lineHeight - fontLineHeight) / 2
         }
-        lineNumberView.text = "\(line.index + 1)"
+        lineNumberView.text = lineManager.usesGutterLabels ? line.data.gutterLabel : "\(line.index + 1)"
         lineNumberView.font = theme.lineNumberFont
         lineNumberView.textColor = theme.lineNumberColor
         lineNumberView.frame = CGRect(x: xPosition, y: yPosition, width: gutterWidthService.lineNumberWidth, height: fontLineHeight)

@@ -14,6 +14,8 @@ final class DocumentLineNodeData {
     var lineHeight: CGFloat
     /// The line's decoration kind (`LineDecorationStyle`), 0 for none. It belongs to the line, so it stays with it as text around it is edited.
     var decoration = 0
+    /// What the gutter shows for the line instead of its number (`LineManager.usesGutterLabels`); the label belongs to the line like a decoration does.
+    var gutterLabel = ""
     var totalLineHeight: CGFloat = 0
     var nodeTotalByteCount = ByteCount(0)
     var startByte: ByteCount {
