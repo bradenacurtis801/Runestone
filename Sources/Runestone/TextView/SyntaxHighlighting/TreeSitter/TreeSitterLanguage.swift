@@ -61,7 +61,8 @@ extension TreeSitterLanguage {
     /// Please refer to Tree-sitter's documentation for more information on queries:
     /// https://tree-sitter.github.io/tree-sitter/using-parsers#pattern-matching-with-queries
     public final class Query {
-        let string: String?
+        /// The query's text — to build another from it (a preset's patterns and a few more).
+        public let string: String?
 
         /// Creates a query with the contents of a provided file.
         ///
