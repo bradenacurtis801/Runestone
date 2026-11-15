@@ -22,6 +22,28 @@ final class LayoutManager {
         }
     }
     var lineManager: LineManager
+    /// Lines (0-based rows, inclusive) picked by the user — drawn over their decoration with `pickedStyle`.
+    var pickedRows: ClosedRange<Int>? {
+        didSet {
+            if pickedRows != oldValue {
+                setNeedsLayout()
+            }
+        }
+    }
+    var pickedStyle: LineDecorationStyle? {
+        didSet {
+            if pickedStyle != oldValue {
+                setNeedsLayout()
+            }
+        }
+    }
+    /// How a line is drawn: its decoration's style, or the picked one when it is picked.
+    private func decorationStyle(of line: DocumentLineNode) -> LineDecorationStyle? {
+        if let pickedRows, pickedRows.contains(line.index), let pickedStyle {
+            return pickedStyle
+        }
+        return lineDecorationStyles[line.data.decoration]
+    }
     var lineDecorationStyles: [Int: LineDecorationStyle] = [:] {
         didSet {
             if lineDecorationStyles != oldValue {
@@ -422,7 +444,7 @@ extension LayoutManager {
                 appearedLineFragmentIDs.insert(lineFragment.id)
                 lineFragmentController.highlightedRangeFragments = highlightService.highlightedRangeFragments(for: lineFragment,
                                                                                                               inLineWithID: line.id)
-                lineFragmentController.backgroundColor = lineDecorationStyles[line.data.decoration]?.background
+                lineFragmentController.backgroundColor = decorationStyle(of: line)?.background
                 layoutLineFragmentView(for: lineFragmentController, lineYPosition: lineYPosition, lineFragmentFrame: &lineFragmentFrame)
                 maxY = lineFragmentFrame.maxY
             }
@@ -488,7 +510,7 @@ extension LayoutManager {
         lineNumberView.frame = CGRect(x: xPosition, y: yPosition, width: gutterWidthService.lineNumberWidth, height: fontLineHeight)
         let rowTop = textContainerInset.top + line.yPosition
         let rowFrame = CGRect(x: -xPosition, y: rowTop - yPosition, width: gutterWidthService.gutterWidth, height: lineController.lineHeight)
-        lineNumberView.setGutterTint(lineDecorationStyles[line.data.decoration]?.gutterBackground, rowFrame: rowFrame)
+        lineNumberView.setGutterTint(decorationStyle(of: line)?.gutterBackground, rowFrame: rowFrame)
     }
 
     private func layoutLineFragmentView(for lineFragmentController: LineFragmentController, lineYPosition: CGFloat, lineFragmentFrame: inout CGRect) {

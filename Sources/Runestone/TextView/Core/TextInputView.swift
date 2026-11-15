@@ -416,6 +416,24 @@ final class TextInputView: UIView, UITextInput {
     private var estimatedLineHeight: CGFloat {
         theme.font.totalLineHeight * lineHeightMultiplier
     }
+    var pickedRows: ClosedRange<Int>? {
+        get {
+            layoutManager.pickedRows
+        }
+        set {
+            layoutManager.pickedRows = newValue
+            layoutManager.layoutIfNeeded()
+        }
+    }
+    var pickedStyle: LineDecorationStyle? {
+        get {
+            layoutManager.pickedStyle
+        }
+        set {
+            layoutManager.pickedStyle = newValue
+            layoutManager.layoutIfNeeded()
+        }
+    }
     var lineDecorationStyles: [Int: LineDecorationStyle] {
         get {
             layoutManager.lineDecorationStyles

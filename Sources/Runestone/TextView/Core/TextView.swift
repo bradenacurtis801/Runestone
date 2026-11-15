@@ -525,6 +525,24 @@ open class TextView: UIScrollView {
             }
         }
     }
+    /// The lines the user has picked (0-based rows, inclusive), drawn with `pickedLineStyle` over whatever else tints them; `nil` for none.
+    public var pickedRows: ClosedRange<Int>? {
+        get {
+            textInputView.pickedRows
+        }
+        set {
+            textInputView.pickedRows = newValue
+        }
+    }
+    /// How a picked line is drawn (see `pickedRows`).
+    public var pickedLineStyle: LineDecorationStyle? {
+        get {
+            textInputView.pickedStyle
+        }
+        set {
+            textInputView.pickedStyle = newValue
+        }
+    }
     /// How lines of each decoration kind are drawn: a color behind the whole row of text and one in the gutter. Kind 0 is no decoration.
     public var lineDecorationStyles: [Int: LineDecorationStyle] {
         get {
