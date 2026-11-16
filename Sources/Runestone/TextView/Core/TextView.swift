@@ -503,6 +503,25 @@ open class TextView: UIScrollView {
     }
     /// Automatically scrolls the text view to show the caret when typing or moving the caret.
     public var isAutomaticScrollEnabled = true
+    /// Scrolls the text while a selection is dragged to an edge: a handle, the loupe, or a word held and moved. Defaults to false.
+    ///
+    /// UIKit only scrolls to show the end of the selection, so a finger held near an edge does not scroll. With this on, the text scrolls
+    /// up and down, and sideways when lines are not wrapped, at a speed that grows toward the edge.
+    public var isSelectionAutoscrollEnabled: Bool {
+        get { selectionAutoscroller.isEnabled }
+        set { selectionAutoscroller.isEnabled = newValue }
+    }
+    /// What scrolls the text up and down while a selection is autoscrolled, when that is not the text view itself — a scroll view it is
+    /// embedded in, whose height it takes.
+    public var selectionAutoscrollScrollView: (() -> UIScrollView?)? {
+        get { selectionAutoscroller.verticalScrollView }
+        set { selectionAutoscroller.verticalScrollView = newValue }
+    }
+    /// Asked when a finger comes down: returning true leaves that touch alone, because something else owns it.
+    public var isSelectionAutoscrollSuspended: (() -> Bool)? {
+        get { selectionAutoscroller.isSuspended }
+        set { selectionAutoscroller.isSuspended = newValue }
+    }
     /// Amount of overscroll to add in the vertical direction.
     ///
     /// The overscroll is a factor of the scrollable area height and will not take into account any insets. 0 means no overscroll and 1 means an amount equal to the height of the text view. Detaults to 0.
@@ -706,6 +725,7 @@ open class TextView: UIScrollView {
     // https://steveshepard.com/blog/adventures-with-uitextinteraction/
     private var textRangeAdjustmentGestureRecognizers: Set<UIGestureRecognizer> = []
     private var previousSelectedRangeDuringGestureHandling: NSRange?
+    private lazy var selectionAutoscroller = SelectionAutoscroller(textView: self)
     private var preferredContentSize: CGSize {
         let horizontalOverscrollLength = max(frame.width * horizontalOverscrollFactor, 0)
         let verticalOverscrollLength = max(frame.height * verticalOverscrollFactor, 0)
@@ -768,6 +788,12 @@ open class TextView: UIScrollView {
         if #available(iOS 26, *), let scrollPocketView {
             bringSubviewToFront(scrollPocketView)
         }
+    }
+
+    /// Called when the view moves to a window.
+    override open func didMoveToWindow() {
+        super.didMoveToWindow()
+        selectionAutoscroller.windowChanged()
     }
 
     /// Called when the safe area of the view changes.
@@ -1436,6 +1462,7 @@ extension TextView: TextInputViewDelegate {
     func textInputViewDidChangeSelection(_ view: TextInputView) {
         UIMenuController.shared.hideMenu(from: self)
         highlightNavigationController.selectedRange = view.selectedRange
+        selectionAutoscroller.selectionChanged()
         if isAutomaticScrollEnabled, let newRange = textInputView.selectedRange, newRange.length == 0 {
             scrollLocationToVisible(newRange.location)
         }
