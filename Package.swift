@@ -10,28 +10,34 @@ let package = Package(
         .iOS(.v14)
     ],
     products: [
-        .library(name: "Runestone", targets: ["Runestone"])
-    ],
-    dependencies: [
-        // Forked to bradenacurtis801/tree-sitter at v0.20.10: fixes an Xcode 26 /
-        // Swift 6.3 C++ interop compile error in api.h/parser.h (std headers
-        // #include'd inside an extern "C" block). Same code otherwise.
-        // See https://github.com/tree-sitter/tree-sitter/issues/5523
-        .package(url: "https://github.com/bradenacurtis801/tree-sitter", .upToNextMinor(from: "0.20.9"))
+        .library(name: "Runestone", targets: ["Runestone"]),
+        .library(name: "TreeSitter", targets: ["TreeSitter"])
     ],
     targets: [
         .target(name: "Runestone", dependencies: [
-            .product(name: "TreeSitter", package: "tree-sitter")
+            "TreeSitter",
+            "TreeSitterSupport"
         ], resources: [
             .copy("PrivacyInfo.xcprivacy"),
             .process("TextView/Appearance/Theme.xcassets")
         ]),
+        .target(
+            name: "TreeSitter",
+            path: "tree-sitter/lib",
+            sources: ["src/lib.c"],
+            publicHeadersPath: "include",
+            cSettings: [.headerSearchPath("src"), .define("_DARWIN_C_SOURCE")]
+        ),
+        .target(name: "TreeSitterSupport", dependencies: ["TreeSitter"]),
         .target(name: "TestTreeSitterLanguages", cSettings: [
+            .headerSearchPath("private"),
             .unsafeFlags(["-w"])
         ]),
         .testTarget(name: "RunestoneTests", dependencies: [
             "Runestone",
+            "TreeSitterSupport",
             "TestTreeSitterLanguages"
         ])
-    ]
+    ],
+    cLanguageStandard: .c11
 )
